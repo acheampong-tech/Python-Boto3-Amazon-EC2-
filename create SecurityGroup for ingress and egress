@@ -1,0 +1,71 @@
+import boto3
+
+def create_security_group(group_name, description, vpc_id):
+    # Initialize a session using Amazon EC2
+    ec2 = boto3.client('ec2', region_name='your-region')  # e.g., 'us-west-2'
+
+    # Create the Security Group
+    response = ec2.create_security_group(
+        GroupName=group_name,
+        Description=description,
+        VpcId=vpc_id
+    )
+
+    security_group_id = response['GroupId']
+    print(f"Security Group Created: {security_group_id}")
+
+    return security_group_id
+
+def add_ingress_rules(security_group_id):
+    ec2 = boto3.client('ec2', region_name='your-region')
+
+    # Add ingress rule to allow incoming traffic on port 22 (SSH)
+    ec2.authorize_security_group_ingress(
+        GroupId=security_group_id,
+        IpPermissions=[
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 22,
+                'ToPort': 22,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+            },
+            {
+                'IpProtocol': 'tcp',
+                'FromPort': 80,
+                'ToPort': 80,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+            }
+        ]
+    )
+    print("Ingress rules added.")
+
+def add_egress_rules(security_group_id):
+    ec2 = boto3.client('ec2', region_name='your-region')
+
+    # Add egress rule to allow all outbound traffic
+    ec2.authorize_security_group_egress(
+        GroupId=security_group_id,
+        IpPermissions=[
+            {
+                'IpProtocol': '-1',  # Allow all protocols
+                'FromPort': 0,
+                'ToPort': 0,
+                'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+            }
+        ]
+    )
+    print("Egress rules added.")
+
+if __name__ == '__main__':
+    group_name = 'MySecurityGroup'
+    description = 'Security Group for testing'
+    vpc_id = 'vpc-xxxxxxxx'  # Replace with your VPC ID
+
+    # Create the Security Group
+    security_group_id = create_security_group(group_name, description, vpc_id)
+
+    # Add Ingress Rules
+    add_ingress_rules(security_group_id)
+
+    # Add Egress Rules
+    add_egress_rules(security_group_id)
