@@ -1,0 +1,60 @@
+import boto3
+
+# Initialize a session using Amazon EC2
+ec2 = boto3.client('ec2', region_name='us-west-2') ####### Replace with your region
+
+# Create a security group                      
+response = ec2.create_security_group(
+    GroupName='my-security-group',                ####### Replace with your name of choice
+    Description='My security group',
+    VpcId='vpc-123abc45'                          ###### Replace with your VPC ID
+)
+
+security_group_id = response['GroupId']
+print(f'Security Group Created {security_group_id}')
+
+# Add ingress rules
+ingress_rules = [
+    {
+        'IpProtocol': 'tcp',
+        'FromPort': 22,
+        'ToPort': 22,
+        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]  # SSH from anywhere
+    },
+    {
+        'IpProtocol': 'tcp',
+        'FromPort': 80,
+        'ToPort': 80,
+        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]  # HTTP from anywhere
+    },
+    {
+        'IpProtocol': 'tcp',
+        'FromPort': 443,
+        'ToPort': 443,
+        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]  # HTTPS from anywhere
+    }
+]
+
+# Authorize ingress rules
+ec2.authorize_security_group_ingress(
+    GroupId=security_group_id,
+    IpPermissions=ingress_rules
+)
+print('Ingress rules successfully set')
+
+# Add egress rules
+egress_rules = [
+    {
+        'IpProtocol': '-1',  # -1 means all protocols
+        'FromPort': -1,
+        'ToPort': -1,
+        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]  # Allow all outbound traffic
+    }
+]
+
+# Authorize egress rules
+ec2.authorize_security_group_egress(
+    GroupId=security_group_id,
+    IpPermissions=egress_rules
+)
+print('Egress rules successfully set')
