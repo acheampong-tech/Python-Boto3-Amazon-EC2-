@@ -21,11 +21,11 @@ python3 -m pip install boto3
 sudo apt update
 
 #  Ensure python3-venv is installed 
-sudo apt install python3-venv       >>>>>>>>>>>>>>>>Replace myenv with the directory name you want for your virtual environment.
+sudo apt install python3-venv       
 
 #  Create a virtual environment 
 
-python3 -m venv myenv                        
+python3 -m venv myenv      >>>>>>>>>>>>>>>>Replace myenv with the directory name you want for your virtual environment.                  
 
 
 #  Activate the virtual environment 
