@@ -1,0 +1,32 @@
+import boto3
+
+ec2_client = boto3.client('ec2', region_name='us-east-1')
+
+def lambda_handler(event, context):
+    response = ec2_client.run_instances(
+        BlockDeviceMappings=[
+            {
+                'DeviceName': '/dev/xvda',
+                'Ebs': {
+                    'DeleteOnTermination': True,
+                    'VolumeSize': 8,
+                    'VolumeType': 'gp3',
+                    'Encrypted': False,
+                    'Iops': 3000
+                }
+            }
+        ],
+        ImageId='ami-0230bd60aa48260c6',                              ##Change to meet your needs 
+        InstanceType='t2.micro',                                      ##Change to meet your needs 
+        MaxCount=1,
+        MinCount=1,
+        KeyName='cloudTechPem',                                       ##Change to meet your needs 
+        Monitoring={
+            'Enabled': False
+        },
+        SecurityGroupIds=[
+            'sg-85485022479016946'                                    ##Change to meet your needs 
+        ],
+        SubnetId='subnet-00626398c2a2638b4'                           ##Change to meet your needs 
+    )
+    return response
